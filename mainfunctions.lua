@@ -342,7 +342,8 @@ local renames =
 function SpawnPrefab(name, skin, skin_id, creator)
     name = string.sub(name, string.find(name, "[^/]*$"))
     name = renames[name] or name
-    if skin and not PrefabExists(skin) then
+    if skin and not IsItemId(skin) then
+        print("Unknown skin", skin)
 		skin = nil
     end
     local guid = TheSim:SpawnPrefab(name, skin, skin_id, creator)
@@ -1057,7 +1058,7 @@ function SaveGame(isshutdown, cb)
     if BRANCH == "dev" then
         patterns = {"=nan", "=-nan", "=inf", "=-inf"}
     else
-        patterns = {"=-1#.IND", "=1.#QNAN", "=1.#INF", "=-1.#INF"}
+        patterns = {"=-1.#IND", "=1.#QNAN", "=1.#INF", "=-1.#INF"}
     end
 
     local data = {}
@@ -1180,7 +1181,11 @@ end
 local function CheckControllers()
     local isConnected = TheInput:ControllerConnected()
     local sawPopup = Profile:SawControllerPopup()
-    if isConnected and not (sawPopup or TheNet:IsDedicated()) then
+
+	if IsSteamDeck() and not TheNet:IsDedicated() then
+		TheInputProxy:EnableInputDevice(1, true)
+        Check_Mods()
+    elseif isConnected and not (sawPopup or TheNet:IsDedicated()) then
 
         -- store previous controller enabled state so we can revert to it, then enable all controllers
         local controllers = {}
@@ -1455,6 +1460,14 @@ function DisplayError(error)
                                                         end},
                 {text=STRINGS.UI.MAINSCREEN.MODFORUMS, nopop=true, cb = function() VisitURL("http://forums.kleientertainment.com/forum/79-dont-starve-together-beta-mods-and-tools/") end }
             }
+
+            -- Add reload save button if we're on dev
+            if BRANCH == "dev" then
+                table.insert(buttons, 1, {text=STRINGS.UI.MAINSCREEN.SCRIPTERRORRESTART, cb = function()
+                                                                                                TheSim:ResetError()
+                                                                                                c_reset()
+                                                                                            end})
+            end
         end
         SetGlobalErrorWidget(
                 STRINGS.UI.MAINSCREEN.MODFAILTITLE,
@@ -1477,6 +1490,14 @@ function DisplayError(error)
             buttons = {
                 {text=STRINGS.UI.MAINSCREEN.SCRIPTERRORQUIT, cb = function() TheSim:ForceAbort() end},
             }
+
+            -- Add reload save button if we're on dev
+            if BRANCH == "dev" then
+                table.insert(buttons, 1, {text=STRINGS.UI.MAINSCREEN.SCRIPTERRORRESTART, cb = function()
+                                                                                                TheSim:ResetError()
+                                                                                                c_reset()
+                                                                                            end})
+            end
 
             if known_error_key == nil or ERRORS[known_error_key] == nil then
                 table.insert(buttons, {text=STRINGS.UI.MAINSCREEN.ISSUE, nopop=true, cb = function() VisitURL("http://forums.kleientertainment.com/klei-bug-tracker/dont-starve-together/") end })
@@ -2025,5 +2046,11 @@ function DisplayAntiAddictionNotification( notification )
         end)
     end
 end
+
+--shell commands that are ignored
+local RCINIL = function() end
+RCITimeout = RCINIL
+RCIFileLock = RCINIL
+RCIFileUnlock = RCINIL
 
 require("dlcsupport")

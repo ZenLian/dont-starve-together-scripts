@@ -8,7 +8,11 @@ local function gettext(inst, viewer)
 	local writeable = inst.components.writeable
     local text = writeable:GetText()
 	if text ~= nil then
-		return text, writeable.text_filter_context or TEXT_FILTER_CTX_CHAT, writeable.writer_netid
+		if IsXB1() then
+			return string.format('"%s"', text)
+		else
+			return text, writeable.text_filter_context or TEXT_FILTER_CTX_CHAT, writeable.writer_netid
+		end
 	end
 
     return GetDescription(viewer, inst, "UNWRITTEN")
@@ -106,7 +110,7 @@ function Writeable:SetOnWritingEndedFn(fn)
     self.onwritingended = fn
 end
 
-function Writeable:GetText(viewer)
+function Writeable:GetText()
 	if IsXB1() then
 		if self.text and self.writer_netid then
 			return "\1"..self.text.."\1"..self.writer_netid
@@ -169,7 +173,8 @@ function Writeable:Write(doer, text)
     --NOTE: text may be network data, so enforcing length is
     --      NOT redundant in order for rendering to be safe.
     if self.writer == doer and doer ~= nil and
-        (text == nil or text:utf8len() <= MAX_WRITEABLE_LENGTH) then
+        (text == nil or text:utf8len() <= (writeables.GetLayout(self.inst.prefab).maxcharacters or MAX_WRITEABLE_LENGTH)) then
+
         if IsRail() then
 			text = TheSim:ApplyWordFilter(text)
 		end
@@ -180,6 +185,10 @@ function Writeable:Write(doer, text)
         end
 
         self:EndWriting()
+
+		if text ~= nil and self.remove_after_write then
+			self.inst:Remove()
+		end
     end
 end
 

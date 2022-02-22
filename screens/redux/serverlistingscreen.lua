@@ -98,6 +98,8 @@ local ServerListingScreen = Class(Screen, function(self, prev_screen, filters, c
 
     self.unjoinable_servers = 0
 
+    self.letterbox = self:AddChild(TEMPLATES.old.ForegroundLetterbox())
+
     self.root = self:AddChild(TEMPLATES.ScreenRoot("scaleroot"))
     self.bg = self.root:AddChild(TEMPLATES.PlainBackground())
     self.heading = self.root:AddChild(TEMPLATES.ScreenTitle(STRINGS.UI.MAINSCREEN.BROWSE))
@@ -909,8 +911,6 @@ function ServerListingScreen:RefreshView(skipPoll, keepScrollFocusPos)
 
         self.servers = TheNet:GetServerListings()
 
-		ServerPreferences:UpdateProfanityFilteredServers(self.servers)
-
         self:DoFiltering(false, keepScrollFocusPos) -- This also calls DoSorting
     end
 
@@ -1078,6 +1078,8 @@ function ServerListingScreen:MakeServerListWidgets()
 
     local function UpdateServerListWidget(context, widget, serverdata, index)
         if not widget then return end
+
+		ServerPreferences:UpdateProfanityFilteredServer(serverdata)
 
         if not serverdata then
             widget.display_index = -1

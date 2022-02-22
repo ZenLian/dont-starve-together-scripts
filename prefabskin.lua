@@ -364,6 +364,9 @@ dragonflychest_clear_fn = function(inst) basic_clear_fn(inst, "dragonfly_chest" 
 wardrobe_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "wardrobe" ) end
 wardrobe_clear_fn = function(inst) basic_clear_fn(inst, "wardrobe" ) end
 
+sculptingtable_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "sculpting_station" ) end
+sculptingtable_clear_fn = function(inst) basic_clear_fn(inst, "sculpting_station" ) end
+
 endtable_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "stagehand" ) end
 endtable_clear_fn = function(inst) basic_clear_fn(inst, "stagehand" ) end
 
@@ -409,7 +412,6 @@ wateringcan_clear_fn = function(inst) basic_clear_fn(inst, "wateringcan" ) end
 seedpouch_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "seedpouch" ) end
 seedpouch_clear_fn = function(inst) basic_clear_fn(inst, "seedpouch" ) end
 
-
 seafaring_prototyper_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "seafaring_prototyper" ) end
 seafaring_prototyper_clear_fn = function(inst) basic_clear_fn(inst, "seafaring_prototyper" ) end
 
@@ -418,6 +420,9 @@ tacklecontainer_clear_fn = function(inst) basic_clear_fn(inst, "tacklecontainer"
 
 supertacklecontainer_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "supertacklecontainer" ) end
 supertacklecontainer_clear_fn = function(inst) basic_clear_fn(inst, "supertacklecontainer" ) end
+
+mermhouse_crafted_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "mermhouse_crafted" ) end
+mermhouse_crafted_clear_fn = function(inst) basic_clear_fn(inst, "mermhouse_crafted" ) end
 
 --------------------------------------------------------------------------
 --[[ rabbithouse skin functions ]]
@@ -639,6 +644,57 @@ end
 function chester_clear_fn(inst)
     inst:SetBuild()
 end
+
+--------------------------------------------------------------------------
+--[[ Hutch skin functions ]]
+--------------------------------------------------------------------------
+function hutch_fishbowl_init_fn(inst, build_name)
+    if not TheWorld.ismastersim then
+        return
+    end
+    basic_init_fn( inst, build_name, "hutch_fishbowl" )
+    inst:RefreshFishBowlIcon()
+
+    inst.linked_skinname = build_name
+end
+function hutch_fishbowl_clear_fn(inst)
+    basic_clear_fn(inst, "hutch_fishbowl" )
+    inst:RefreshFishBowlIcon()
+
+    inst.linked_skinname = nil
+end
+
+function hutch_init_fn(inst, build_name)
+    if not TheWorld.ismastersim then
+        return
+    end
+    inst:SetBuild()
+end
+function hutch_clear_fn(inst)
+    inst:SetBuild()
+end
+
+
+--------------------------------------------------------------------------
+--[[ Glommer skin functions ]]
+--------------------------------------------------------------------------
+function glommerflower_init_fn(inst, build_name)
+    basic_init_fn( inst, build_name, "glommer_flower" )
+    if not TheWorld.ismastersim then
+        return
+    end
+    inst:RefreshFlowerIcon()
+end
+function glommerflower_clear_fn(inst)
+    basic_clear_fn(inst, "glommer_flower" )
+    inst:RefreshFlowerIcon()
+end
+
+glommer_init_fn = function(inst, build_name) basic_init_fn( inst, build_name, "glommer" ) end
+glommer_clear_fn = function(inst) basic_clear_fn(inst, "glommer" ) end
+
+
+
 
 
 --------------------------------------------------------------------------
@@ -1041,6 +1097,37 @@ function mastupgrade_lamp_clear_fn(inst)
     inst.AnimState:SetBuild("mastupgrade_lamp")
 end
 
+--------------------------------------------------------------------------
+--[[ mastupgrade_lightningrod skin functions ]]
+--------------------------------------------------------------------------
+function mastupgrade_lightningrod_item_init_fn(inst, build_name)
+    inst.linked_skinname = build_name --hack that relies on the build name to match the linked skinname
+    inst.AnimState:SetSkin(build_name, "mastupgrade_lightningrod") --same hack is used here by the deployable code in player controller
+    inst.components.inventoryitem:ChangeImageName(inst:GetSkinName())
+end
+function mastupgrade_lightningrod_item_clear_fn(inst)
+    inst.linked_skinname = nil
+    inst.AnimState:SetBuild("mastupgrade_lightningrod")
+    inst.components.inventoryitem:ChangeImageName()
+end
+function mastupgrade_lightningrod_init_fn(inst, build_name)
+    if inst.components.placer == nil and not TheWorld.ismastersim then
+        return
+    end
+    inst.AnimState:SetSkin(build_name, "mastupgrade_lightningrod")
+end
+function mastupgrade_lightningrod_clear_fn(inst)
+    inst.AnimState:SetBuild("mastupgrade_lightningrod")
+end
+function mastupgrade_lightningrod_top_init_fn(inst, build_name)
+    if inst.components.placer == nil and not TheWorld.ismastersim then
+        return
+    end
+    inst.AnimState:SetSkin(build_name, "mastupgrade_lightningrod")
+end
+function mastupgrade_lightningrod_top_clear_fn(inst)
+    inst.AnimState:SetBuild("mastupgrade_lightningrod")
+end
 
 
 --------------------------------------------------------------------------
